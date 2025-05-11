@@ -99,7 +99,8 @@ type rejectedTx struct {
 // Apply applies a set of transactions to a pre-state
 func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 	txs types.Transactions, miningReward int64,
-	getTracerFn func(txIndex int, txHash common.Hash) (tracer vm.EVMLogger, err error)) (*state.StateDB, *ExecutionResult, error) {
+	getTracerFn func(txIndex int, txHash common.Hash) (tracer vm.EVMLogger, err error),
+) (*state.StateDB, *ExecutionResult, error) {
 	// Capture errors for BLOCKHASH operation, if we haven't been supplied the
 	// required blockhashes
 	var hashError error
@@ -169,7 +170,7 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 		statedb.Prepare(tx.Hash(), txIndex)
 		txContext := core.NewEVMTxContext(msg)
 		snapshot := statedb.Snapshot()
-		evm := vm.NewEVM(vmContext, txContext, statedb, chainConfig, vmConfig)
+		evm := vm.NewEVM(vmContext, txContext, statedb, chainConfig, vmConfig, nil)
 
 		// (ret []byte, usedGas uint64, failed bool, err error)
 		msgResult, err := core.ApplyMessage(evm, msg, gaspool)
@@ -214,8 +215,8 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 			receipt.Logs = statedb.GetLogs(tx.Hash(), blockHash)
 			receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 			// These three are non-consensus fields:
-			//receipt.BlockHash
-			//receipt.BlockNumber
+			// receipt.BlockHash
+			// receipt.BlockNumber
 			receipt.TransactionIndex = uint(txIndex)
 			receipts = append(receipts, receipt)
 		}
@@ -296,7 +297,8 @@ func rlpHash(x interface{}) (h common.Hash) {
 // parent timestamp + difficulty.
 // Note: this method only works for ethash engine.
 func calcDifficulty(config *params.ChainConfig, number, currentTime, parentTime uint64,
-	parentDifficulty *big.Int, parentUncleHash common.Hash) *big.Int {
+	parentDifficulty *big.Int, parentUncleHash common.Hash,
+) *big.Int {
 	uncleHash := parentUncleHash
 	if uncleHash == (common.Hash{}) {
 		uncleHash = types.EmptyUncleHash

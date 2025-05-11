@@ -41,9 +41,11 @@ type twoOperandParams struct {
 	y string
 }
 
-var alphabetSoup = "ABCDEF090807060504030201ffffffffffffffffffffffffffffffffffffffff"
-var commonParams []*twoOperandParams
-var twoOpMethods map[string]executionFunc
+var (
+	alphabetSoup = "ABCDEF090807060504030201ffffffffffffffffffffffffffffffffffffffff"
+	commonParams []*twoOperandParams
+	twoOpMethods map[string]executionFunc
+)
 
 func init() {
 	// Params is a list of common edgecases that should be used for some common tests
@@ -92,7 +94,7 @@ func init() {
 
 func testTwoOperandOp(t *testing.T, tests []TwoOperandTestcase, opFn executionFunc, name string) {
 	var (
-		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 		stack          = newstack()
 		pc             = uint64(0)
 		evmInterpreter = env.interpreter
@@ -191,7 +193,7 @@ func TestSAR(t *testing.T) {
 
 func TestAddMod(t *testing.T) {
 	var (
-		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 		stack          = newstack()
 		evmInterpreter = NewEVMInterpreter(env, env.Config)
 		pc             = uint64(0)
@@ -202,7 +204,8 @@ func TestAddMod(t *testing.T) {
 		z        string
 		expected string
 	}{
-		{"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+		{
+			"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
 			"fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
 			"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
 			"fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
@@ -235,7 +238,7 @@ func TestWriteExpectedValues(t *testing.T) {
 	// getResult is a convenience function to generate the expected values
 	getResult := func(args []*twoOperandParams, opFn executionFunc) []TwoOperandTestcase {
 		var (
-			env         = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+			env         = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 			stack       = newstack()
 			pc          = uint64(0)
 			interpreter = env.interpreter
@@ -258,7 +261,7 @@ func TestWriteExpectedValues(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		_ = os.WriteFile(fmt.Sprintf("testdata/testcases_%v.json", name), data, 0644)
+		_ = os.WriteFile(fmt.Sprintf("testdata/testcases_%v.json", name), data, 0o644)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -280,7 +283,7 @@ func TestJsonTestcases(t *testing.T) {
 
 func opBenchmark(bench *testing.B, op executionFunc, args ...string) {
 	var (
-		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 		stack          = newstack()
 		scope          = &ScopeContext{nil, stack, nil}
 		evmInterpreter = NewEVMInterpreter(env, env.Config)
@@ -447,11 +450,13 @@ func BenchmarkOpEq(b *testing.B) {
 
 	opBenchmark(b, opEq, x, y)
 }
+
 func BenchmarkOpEq2(b *testing.B) {
 	x := "FBCDEF090807060504030201ffffffffFBCDEF090807060504030201ffffffff"
 	y := "FBCDEF090807060504030201ffffffffFBCDEF090807060504030201fffffffe"
 	opBenchmark(b, opEq, x, y)
 }
+
 func BenchmarkOpAnd(b *testing.B) {
 	x := alphabetSoup
 	y := alphabetSoup
@@ -502,18 +507,21 @@ func BenchmarkOpSHL(b *testing.B) {
 
 	opBenchmark(b, opSHL, x, y)
 }
+
 func BenchmarkOpSHR(b *testing.B) {
 	x := "FBCDEF090807060504030201ffffffffFBCDEF090807060504030201ffffffff"
 	y := "ff"
 
 	opBenchmark(b, opSHR, x, y)
 }
+
 func BenchmarkOpSAR(b *testing.B) {
 	x := "FBCDEF090807060504030201ffffffffFBCDEF090807060504030201ffffffff"
 	y := "ff"
 
 	opBenchmark(b, opSAR, x, y)
 }
+
 func BenchmarkOpIsZero(b *testing.B) {
 	x := "FBCDEF090807060504030201ffffffffFBCDEF090807060504030201ffffffff"
 	opBenchmark(b, opIszero, x)
@@ -521,7 +529,7 @@ func BenchmarkOpIsZero(b *testing.B) {
 
 func TestOpMstore(t *testing.T) {
 	var (
-		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 		stack          = newstack()
 		mem            = NewMemory()
 		evmInterpreter = NewEVMInterpreter(env, env.Config)
@@ -547,7 +555,7 @@ func TestOpMstore(t *testing.T) {
 
 func BenchmarkOpMstore(bench *testing.B) {
 	var (
-		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 		stack          = newstack()
 		mem            = NewMemory()
 		evmInterpreter = NewEVMInterpreter(env, env.Config)
@@ -569,7 +577,7 @@ func BenchmarkOpMstore(bench *testing.B) {
 
 func BenchmarkOpKeccak256(bench *testing.B) {
 	var (
-		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
+		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 		stack          = newstack()
 		mem            = NewMemory()
 		evmInterpreter = NewEVMInterpreter(env, env.Config)
@@ -673,7 +681,7 @@ func TestRandom(t *testing.T) {
 		{name: "hash(0x010203)", random: crypto.Keccak256Hash([]byte{0x01, 0x02, 0x03})},
 	} {
 		var (
-			env            = NewEVM(BlockContext{Random: &tt.random}, TxContext{}, nil, params.TestChainConfig, Config{})
+			env            = NewEVM(BlockContext{Random: &tt.random}, TxContext{}, nil, params.TestChainConfig, Config{}, nil)
 			stack          = newstack()
 			pc             = uint64(0)
 			evmInterpreter = env.interpreter

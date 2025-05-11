@@ -185,7 +185,7 @@ func (b *LesApiBackend) GetEVM(ctx context.Context, msg core.Message, state *sta
 	}
 	txContext := core.NewEVMTxContext(msg)
 	context := core.NewEVMBlockContext(header, b.eth.blockchain, nil)
-	return vm.NewEVM(context, txContext, state, b.eth.chainConfig, *vmConfig), state.Error, nil
+	return vm.NewEVM(context, txContext, state, b.eth.chainConfig, *vmConfig, b.GetCustomPrecompiles(header.Number.Int64())), state.Error, nil
 }
 
 func (b *LesApiBackend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
@@ -327,4 +327,8 @@ func (b *LesApiBackend) StateAtBlock(ctx context.Context, block *types.Block, re
 
 func (b *LesApiBackend) StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, vm.BlockContext, *state.StateDB, error) {
 	return b.eth.stateAtTransaction(ctx, block, txIndex, reexec)
+}
+
+func (b *LesApiBackend) GetCustomPrecompiles(int64) map[common.Address]vm.PrecompiledContract {
+	return nil
 }
