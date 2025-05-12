@@ -92,7 +92,9 @@ func fuzz(id byte, data []byte) int {
 	}
 	cpy := make([]byte, len(data))
 	copy(cpy, data)
-	_, err := precompile.Run(nil, common.Address{}, common.Address{}, vm.AccountRef(common.Address{}), cpy, nil, false, false)
+	contract := vm.NewPrecompile(vm.AccountRef(common.Address{}), vm.AccountRef(common.BytesToAddress([]byte{id})), common.Big0, gas)
+	contract.Input = cpy
+	_, err := precompile.Run(nil, contract, common.Address{}, vm.AccountRef(common.Address{}), cpy, nil, false, false)
 	if !bytes.Equal(cpy, data) {
 		panic(fmt.Sprintf("input data modified, precompile %d: %x %x", id, data, cpy))
 	}
