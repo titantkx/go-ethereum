@@ -141,6 +141,17 @@ func ActivePrecompiles(rules params.Rules) []common.Address {
 }
 
 // RunPrecompiledContract runs and evaluates the output of a precompiled contract.
+// Params:
+// - p: the precompiled contract to run
+// - contractAddr: the address of the precompiled contract
+// - evm: the EVM context to run the contract
+// - sender: the address of the sender of the transaction
+// - callingContract: the contract that is calling the precompiled contract (is sender)
+// - input: the input data to the precompiled contract
+// - suppliedGas: the amount of gas supplied to the contract
+// - value: the value sent to the contract (if any)
+// - readOnly: whether the contract is being called in a read-only context
+// - isFromDelegateCall: whether the call is from a delegate call
 // It returns
 // - the returned bytes,
 // - the _remaining_ gas,
