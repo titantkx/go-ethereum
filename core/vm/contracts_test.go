@@ -168,7 +168,6 @@ func benchmarkPrecompiled(addr string, test precompiledTest, bench *testing.B) {
 		bench.ResetTimer()
 		for i := 0; i < bench.N; i++ {
 			copy(data, in)
-			// res, _, err = RunPrecompiledContract(p, data, reqGas)
 			res, _, err = RunPrecompiledContract(p, common.HexToAddress(addr), nil, common.Address{}, AccountRef(common.Address{}), data, reqGas, nil, false, false)
 		}
 		bench.StopTimer()
