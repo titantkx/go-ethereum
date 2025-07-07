@@ -33,8 +33,8 @@ import (
 )
 
 // PrecompiledContract is the basic interface for native Go contracts. The implementation
-// requires a deterministic gas count based on the input size of the Run method of the
-// contract.
+// use a deterministic started gas count based on the input size of the Run method of the
+// contract. Inside the Run method, the contract can call contract.UseGas to dynamically consume gas.
 type PrecompiledContract interface {
 	RequiredGas(input []byte) uint64                                                                                                                                            // RequiredPrice calculates the contract gas use
 	Run(evm *EVM, contract *Contract, sender common.Address, callingContract ContractRef, input []byte, value *big.Int, readOnly bool, isFromDelegateCall bool) ([]byte, error) // Run runs the precompiled contract
